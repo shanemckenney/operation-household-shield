@@ -1,407 +1,501 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Operation: Household Network</title>
+  <title>Operation: Household Shield | Security+ Defense Challenge</title>
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
   <!-- Firebase Compatibility SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          boxShadow: {
+            'glow-cyan': '0 0 25px -5px rgba(6, 182, 212, 0.4)',
+            'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.4)',
+            'glow-amber': '0 0 25px -5px rgba(245, 158, 11, 0.4)',
+            'glow-rose': '0 0 25px -5px rgba(244, 63, 94, 0.4)',
+            'glow-purple': '0 0 25px -5px rgba(168, 85, 247, 0.4)',
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
     @keyframes popIn {
-      0% { transform: scale(0.5); opacity: 0; }
-      70% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
+      0% { transform: scale(0.6) translateY(20px); opacity: 0; }
+      70% { transform: scale(1.05) translateY(-5px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(1000%); }
     }
     .animate-pop-in {
-      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      animation: popIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .scanline-effect {
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(to bottom, rgba(6,182,212,0), rgba(6,182,212,0.3), rgba(6,182,212,0));
+      animation: scanline 8s linear infinite;
+      pointer-events: none;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+    .glass-panel-interactive {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-panel-interactive:hover {
+      background: rgba(30, 41, 59, 0.9);
+      border-color: rgba(6, 182, 212, 0.6);
+      transform: translateY(-2px);
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col items-center p-3 selection:bg-cyan-500 selection:text-slate-950">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col items-center p-3 sm:p-5 selection:bg-cyan-500 selection:text-slate-950 relative overflow-x-hidden">
+
+  <!-- Background Cyber Ambient Gradients -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute top-1/3 -right-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
+    <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 4s;"></div>
+    <div class="scanline-effect"></div>
+  </div>
 
   <!-- TOP GLOBAL NAV BAR -->
-  <header class="w-full max-w-[1400px] flex justify-between items-center mb-3">
-    <div>
-      <span class="text-cyan-400 text-[10px] font-mono tracking-widest uppercase font-bold">Military Cyber Division</span>
-      <h1 class="text-lg md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
-        OPERATION: NETWORK
-      </h1>
+  <header class="w-full max-w-[1400px] flex justify-between items-center mb-4 z-10 glass-panel p-3.5 px-5 rounded-2xl border border-slate-800 shadow-xl">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-emerald-400 flex items-center justify-center text-slate-950 font-extrabold text-lg shadow-glow-cyan">
+        🛡️
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-cyan-400 text-[10px] font-mono tracking-widest uppercase font-bold bg-cyan-950/80 border border-cyan-800 px-2 py-0.5 rounded-full">Security+ Division</span>
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        </div>
+        <h1 class="text-base md:text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-200 to-emerald-400">
+          OPERATION: HOUSEHOLD SHIELD
+        </h1>
+      </div>
     </div>
-    <!-- Switch Role Button -->
-    <button id="switch-role-btn" onclick="showRoleLauncher()" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 transition shadow-md">
+
+    <!-- Switch Station Button (Hidden on Mobile Player view) -->
+    <button id="switch-role-btn" onclick="showRoleLauncher()" class="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/80 hover:border-cyan-500/50 px-3.5 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md active:scale-95">
       <span>🔄</span> Switch Station
     </button>
   </header>
 
   <!-- =================================================================== -->
-  <!-- 0. ROLE LAUNCHER (Default menu when visiting base URL)              -->
+  <!-- 0. ROLE LAUNCHER (PIN Protected)                                    -->
   <!-- =================================================================== -->
-  <div id="role-launcher" class="w-full max-w-xl flex flex-col items-center text-center my-auto py-6">
-    <div class="mb-6">
-      <h2 class="text-2xl md:text-3xl font-black text-white mb-2">SELECT YOUR STATION</h2>
-      <p class="text-xs text-slate-400">Choose how you are joining Operation: Household Network</p>
+  <div id="role-launcher" class="hidden w-full max-w-2xl flex-col items-center text-center my-auto py-8 z-10">
+    <div class="mb-8 space-y-2">
+      <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+        Command Center Access
+      </span>
+      <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight">SELECT YOUR STATION</h2>
+      <p class="text-xs md:text-sm text-slate-400 max-w-md mx-auto">Select your operational terminal. Presenter and Scorekeeper views require host authorization PIN.</p>
     </div>
 
     <div class="grid grid-cols-1 gap-4 w-full">
-      <button onclick="setRole('player')" class="bg-gradient-to-r from-cyan-950 to-slate-900 border-2 border-cyan-500/50 hover:border-cyan-400 p-5 rounded-2xl text-left flex items-center gap-4 transition shadow-xl group">
-        <span class="text-4xl bg-cyan-900/40 p-3 rounded-xl border border-cyan-700/50">📱</span>
-        <div>
-          <h3 class="font-black text-lg text-cyan-400 group-hover:text-cyan-300">FAMILY SQUAD / PLAYER</h3>
-          <p class="text-xs text-slate-300">Enlist team name & play the live quiz on your smartphone.</p>
+      <button onclick="setRole('player')" class="glass-panel-interactive p-5 rounded-2xl text-left flex items-center gap-5 group shadow-glow-cyan">
+        <div class="text-4xl bg-cyan-950/60 p-3.5 rounded-2xl border border-cyan-700/50 group-hover:scale-110 transition-transform">
+          📱
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center justify-between">
+            <h3 class="font-black text-lg text-cyan-400 group-hover:text-cyan-300">FAMILY SQUAD / PLAYER TERMINAL</h3>
+            <span class="text-xs font-mono text-cyan-400/70 group-hover:translate-x-1 transition-transform">JOIN ➔</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1">Enlist team name & participate in live defensive trivia & charades from your smartphone.</p>
         </div>
       </button>
 
-      <button onclick="setRole('presenter')" class="bg-gradient-to-r from-teal-950 to-slate-900 border-2 border-teal-500/50 hover:border-teal-400 p-5 rounded-2xl text-left flex items-center gap-4 transition shadow-xl group">
-        <span class="text-4xl bg-teal-900/40 p-3 rounded-xl border border-teal-700/50">📺</span>
-        <div>
-          <h3 class="font-black text-lg text-teal-400 group-hover:text-teal-300">HOST / ZOOM PRESENTER</h3>
-          <p class="text-xs text-slate-300">Open Zoom screen-share board + guided phase deck.</p>
+      <button onclick="setRole('presenter')" class="glass-panel-interactive p-5 rounded-2xl text-left flex items-center gap-5 group hover:shadow-glow-emerald">
+        <div class="text-4xl bg-emerald-950/60 p-3.5 rounded-2xl border border-emerald-700/50 group-hover:scale-110 transition-transform">
+          📺
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center justify-between">
+            <h3 class="font-black text-lg text-emerald-400 group-hover:text-emerald-300">HOST / ZOOM PRESENTER DECK 🔒</h3>
+            <span class="text-xs font-mono text-emerald-400/70 group-hover:translate-x-1 transition-transform">LAUNCH ➔</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1">Open Zoom screen-share command board with live phase controls, stage deck, & leaderboards.</p>
         </div>
       </button>
 
-      <button onclick="setRole('scorekeeper')" class="bg-gradient-to-r from-amber-950 to-slate-900 border-2 border-amber-500/50 hover:border-amber-400 p-5 rounded-2xl text-left flex items-center gap-4 transition shadow-xl group">
-        <span class="text-4xl bg-amber-900/40 p-3 rounded-xl border border-amber-700/50">⚡</span>
-        <div>
-          <h3 class="font-black text-lg text-amber-400 group-hover:text-amber-300">SCOREKEEPER (Kristina)</h3>
-          <p class="text-xs text-slate-300">Phase 3 manual point adjuster (+50 Spotlight & random fun bonuses).</p>
+      <button onclick="setRole('scorekeeper')" class="glass-panel-interactive p-5 rounded-2xl text-left flex items-center gap-5 group hover:shadow-glow-amber">
+        <div class="text-4xl bg-amber-950/60 p-3.5 rounded-2xl border border-amber-700/50 group-hover:scale-110 transition-transform">
+          ⚡
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center justify-between">
+            <h3 class="font-black text-lg text-amber-400 group-hover:text-amber-300">SCOREKEEPER TERMINAL (Kristina) 🔒</h3>
+            <span class="text-xs font-mono text-amber-400/70 group-hover:translate-x-1 transition-transform">OPERATE ➔</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1">Award +50 Spotlight Performance points & roll random Good Vibes bonuses live.</p>
         </div>
       </button>
     </div>
   </div>
 
   <!-- =================================================================== -->
-  <!-- 1. PRESENTER VIEW (?role=presenter) - WIDESCREEN ZERO-SCROLL DECK   -->
+  <!-- 1. PRESENTER VIEW (?role=presenter)                                 -->
   <!-- =================================================================== -->
-  <div id="role-presenter" class="hidden w-full max-w-[1400px] flex flex-col justify-between">
+  <div id="role-presenter" class="hidden w-full max-w-[1400px] flex flex-col justify-between z-10">
 
     <!-- FIXED PHASE STEPPER CONTROL BAR -->
-    <div class="w-full bg-slate-900 border border-slate-800 px-4 py-2 rounded-2xl mb-3 flex justify-between items-center shadow-xl">
-      <button onclick="prevPhase()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1">
+    <div class="w-full glass-panel px-5 py-3 rounded-2xl mb-4 flex justify-between items-center shadow-2xl">
+      <button onclick="prevPhase()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 border border-slate-700 transition">
         ⬅️ Prev Phase
       </button>
       <div class="text-center">
-        <span id="phase-title" class="font-extrabold text-cyan-400 text-sm md:text-base block leading-tight">Phase 0: Lobby & IoT Race</span>
-        <span class="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Presenter Deck Controls (Use Left/Right Arrows)</span>
+        <span id="phase-title" class="font-black text-cyan-400 text-base md:text-lg block tracking-wide">Phase 0: Lobby & Threat Surface Audit</span>
+        <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Presenter Navigation Deck (Use Keyboard Left/Right Arrows)</span>
       </div>
-      <button onclick="nextPhase()" class="bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-black px-4 py-1.5 rounded-xl text-xs shadow-lg hover:opacity-90 flex items-center gap-1">
+      <button onclick="nextPhase()" class="bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-black px-5 py-2 rounded-xl text-xs shadow-glow-cyan hover:opacity-90 flex items-center gap-2 transition">
         Next Phase ➡️
       </button>
     </div>
 
-    <!-- PHASE 0 DECK: LOBBY & IOT CHAT RACE -->
-    <div id="deck-phase-0" class="w-full space-y-3">
+    <!-- PHASE 0 DECK: LOBBY & THREAT SURFACE AUDIT -->
+    <div id="deck-phase-0" class="w-full space-y-4">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- QR Code Card -->
-        <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center flex flex-col items-center justify-center shadow-xl">
-          <h3 class="font-bold text-cyan-400 text-xs mb-2 uppercase tracking-wider">📱 SCAN TO JOIN GAME</h3>
-          <img id="lobby-qr-img" src="" alt="Scan QR Code to Join" class="w-36 h-36 rounded-xl border-2 border-slate-800 shadow-md mb-2">
-          <p class="text-[10px] text-slate-400">Point phone camera at screen to enlist your squad!</p>
+        <div class="glass-panel p-5 rounded-2xl text-center flex flex-col items-center justify-center shadow-xl border-cyan-500/30">
+          <span class="bg-cyan-950 text-cyan-400 font-mono text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-3 border border-cyan-800">
+            📱 SCAN TO ENLIST SQUAD
+          </span>
+          <div class="p-3 bg-white rounded-2xl shadow-glow-cyan mb-3">
+            <img id="lobby-qr-img" src="" alt="Scan QR Code to Join" class="w-40 h-40 rounded-lg">
+          </div>
+          <p class="text-xs text-slate-300 font-medium">Point phone camera at screen to enlist your squad!</p>
         </div>
 
-        <!-- IoT Explanation Card -->
-        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+        <!-- Threat Surface Audit Card -->
+        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl flex flex-col justify-between shadow-xl border-amber-500/30">
           <div>
-            <span class="text-amber-400 font-mono text-xs font-bold uppercase tracking-wider block mb-1">⚡ Pre-Game Icebreaker</span>
-            <h2 class="text-2xl font-black text-white mb-1">The IoT Chat Race!</h2>
-            <p class="text-xs text-slate-300 leading-relaxed mb-3">
-              <strong class="text-cyan-400">What is an IoT Device?</strong> Internet of Things = Any smart home tech on Wi-Fi (Smart TVs, Ring doorbells, Alexa speakers, smart bulbs, security cams, game consoles).
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-amber-400 font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <span class="animate-ping inline-block w-2 h-2 rounded-full bg-amber-400"></span> ⚡ Pre-Game Mission
+              </span>
+              <span class="text-xs font-mono text-slate-400">Security+ Domain 1.0</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-black text-white mb-2">The Household Threat Surface Audit!</h2>
+            <p class="text-xs md:text-sm text-slate-300 leading-relaxed mb-4">
+              <strong class="text-cyan-400">What is an Attack Surface?</strong> Every smart TV, security cam, voice assistant, tablet, or gaming console connected to your home Wi-Fi represents an entry point a cyber attacker could exploit.
             </p>
           </div>
-          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl text-center">
-            <span class="text-xs text-emerald-400 font-bold block mb-0.5">🎯 YOUR MISSION RIGHT NOW:</span>
-            <p class="text-sm font-extrabold text-white">Count every smart device in your house and drop your total in Zoom Chat!</p>
+          <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-xl text-center">
+            <span class="text-xs text-emerald-400 font-bold block mb-1">🎯 YOUR ICEBREAKER MISSION RIGHT NOW:</span>
+            <p class="text-sm md:text-base font-extrabold text-white">Count EVERY Wi-Fi connected device + cameras/mics in your house and drop your total in Zoom Chat!</p>
           </div>
         </div>
       </div>
 
-      <!-- Compact Squad Name Pills Section -->
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-xs font-extrabold text-cyan-400 flex items-center gap-1.5 uppercase tracking-wider">
-            <span>🛡️</span> ENLISTED SQUADS
+      <!-- Squad Enlistment Pills Section -->
+      <div class="glass-panel p-5 rounded-2xl shadow-xl">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-xs font-extrabold text-cyan-400 flex items-center gap-2 uppercase tracking-wider font-mono">
+            <span>🛡️</span> ENLISTED DEFENDER SQUADS
           </h3>
           <div class="flex items-center gap-2">
-            <span id="squad-count-badge" class="bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono text-[11px] px-2.5 py-0.5 rounded-full font-bold">0 Squads Joined</span>
-            <button onclick="clearAllTeams()" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold px-2.5 py-0.5 rounded-full text-[10px] transition">
-              🗑️ Clear All Teams
+            <span id="squad-count-badge" class="bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono text-xs px-3 py-1 rounded-full font-bold">0 Squads Enlisted</span>
+            <button onclick="clearAllTeams()" class="bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold px-3 py-1 rounded-full text-xs transition">
+              🗑️ Reset All Teams
             </button>
           </div>
         </div>
-        <div id="lobby-squad-pills" class="flex flex-wrap justify-start gap-1.5 max-h-32 overflow-y-auto p-2 border border-slate-950 rounded-xl bg-slate-950/50">
+        <div id="lobby-squad-pills" class="flex flex-wrap justify-start gap-2 max-h-36 overflow-y-auto p-3 border border-slate-900 rounded-xl bg-slate-950/70">
           <p class="text-xs text-slate-500 italic py-1">Waiting for family squads to scan QR code & enlist...</p>
         </div>
       </div>
     </div>
 
-    <!-- PHASE 1 DECK: HARDWARE SCAVENGER HUNT (VERTICAL FLOW RESTRUCTURE) -->
-    <div id="deck-phase-1" class="hidden w-full space-y-2.5">
-      
-      <!-- 1. TITLE CARD AT TOP -->
-      <div class="bg-gradient-to-r from-slate-900 via-cyan-950 to-slate-900 border border-cyan-500/60 py-2.5 px-6 rounded-2xl shadow-xl text-center">
+    <!-- PHASE 1 DECK: SECURITY CONTROLS SCAVENGER HUNT -->
+    <div id="deck-phase-1" class="hidden w-full space-y-3">
+      <div class="bg-gradient-to-r from-slate-900 via-cyan-950 to-slate-900 border border-cyan-500/50 py-3 px-6 rounded-2xl shadow-glow-cyan text-center">
         <span class="text-amber-400 font-mono text-xs font-black uppercase tracking-widest block animate-pulse">
-          ⚡ MISSION 1: PHYSICAL RECON SPRINT 🏃‍♂️💨
+          ⚡ MISSION 1: DEFENSIVE CONTROL RECON SPRINT 🏃‍♂️💨
         </span>
         <h2 class="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-white to-cyan-300">
-          HARDWARE SCAVENGER HUNT!
+          SECURITY CONTROLS SCAVENGER HUNT!
         </h2>
       </div>
 
-      <!-- 2. ROLE CALLOUT BOX DIRECTLY UNDER TITLE CARD -->
-      <div class="w-full bg-slate-900 border border-slate-800 p-3 rounded-2xl shadow-lg flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-8 text-center">
+      <div class="w-full glass-panel p-3.5 rounded-2xl shadow-lg flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-8 text-center">
         <div class="flex items-center gap-2">
-          <span class="text-xl">🏃‍♀️</span>
+          <span class="text-2xl">🏃‍♀️</span>
           <p class="text-xs md:text-sm font-extrabold text-white">
-            <span class="text-cyan-400 uppercase font-mono">SPOUSES & KIDS:</span> Sprint to find an item below!
+            <span class="text-cyan-400 uppercase font-mono">FAMILIES & KIDS:</span> Sprint to find an item below!
           </p>
         </div>
         <span class="hidden sm:inline text-slate-700 font-bold">|</span>
         <div class="flex items-center gap-2">
-          <span class="text-xl">🎓</span>
+          <span class="text-2xl">🎓</span>
           <p class="text-xs md:text-sm font-extrabold text-white">
-            <span class="text-amber-300 uppercase font-mono">VETERAN STUDENTS:</span> Explain WHY it fits on camera (15s)!
+            <span class="text-amber-300 uppercase font-mono">SECURITY+ DEFENDERS:</span> Explain the SECURITY CONTROL on camera (15s)!
           </p>
         </div>
       </div>
 
-      <!-- 3. 4 TARGET CARDS IN A SINGLE 4-COLUMN ROW -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-        
-        <!-- TARGET 1: FIREWALL -->
-        <div class="bg-slate-900 border-2 border-rose-500/60 p-4 rounded-2xl shadow-xl flex flex-col justify-between hover:border-rose-400 transition">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- Target 1: MFA -->
+        <div class="glass-panel-interactive border-2 border-cyan-500/50 p-4 rounded-2xl flex flex-col justify-between hover:shadow-glow-cyan">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-rose-950 text-rose-300 border border-rose-700 text-[10px] font-mono font-black px-2 py-0.5 rounded-full uppercase">Target 1</span>
-              <span class="text-2xl">🧱</span>
+            <div class="flex justify-between items-center mb-2">
+              <span class="bg-cyan-950 text-cyan-300 border border-cyan-700 text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full uppercase">Target 1</span>
+              <span class="text-3xl">🔐</span>
             </div>
-            <h3 class="text-xl font-black text-rose-400 mb-1">FIREWALL</h3>
+            <h3 class="text-lg font-black text-cyan-400 mb-1">MULTI-FACTOR AUTH</h3>
             <p class="text-xs text-slate-200 font-medium mb-3 leading-snug">
-              Find something that <span class="text-rose-300 font-bold underline">BLOCKS DANGER</span> while letting safe stuff through!
+              Find something that requires <span class="text-cyan-300 font-bold underline">TWO DIFFERENT KEYS</span> or steps to unlock!
             </p>
           </div>
           <div>
             <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1.5">💡 Household Ideas:</span>
-            <div class="flex flex-wrap gap-1">
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🥊 Oven Mitt</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🚪 Baby Gate</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🍝 Colander</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🛡️ Pot Lid</span>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🔑 Key + Fob</span>
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🔒 Safe + Code</span>
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">📱 Phone + Pin</span>
             </div>
           </div>
         </div>
 
-        <!-- TARGET 2: SWITCH -->
-        <div class="bg-slate-900 border-2 border-amber-500/60 p-4 rounded-2xl shadow-xl flex flex-col justify-between hover:border-amber-400 transition">
+        <!-- Target 2: Faraday/Air Gap -->
+        <div class="glass-panel-interactive border-2 border-rose-500/50 p-4 rounded-2xl flex flex-col justify-between hover:shadow-glow-rose">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-amber-950 text-amber-300 border border-amber-700 text-[10px] font-mono font-black px-2 py-0.5 rounded-full uppercase">Target 2</span>
-              <span class="text-2xl">🔀</span>
+            <div class="flex justify-between items-center mb-2">
+              <span class="bg-rose-950 text-rose-300 border border-rose-700 text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full uppercase">Target 2</span>
+              <span class="text-3xl">🛡️</span>
             </div>
-            <h3 class="text-xl font-black text-amber-400 mb-1">NETWORK SWITCH</h3>
+            <h3 class="text-lg font-black text-rose-400 mb-1">FARADAY / AIR GAP</h3>
             <p class="text-xs text-slate-200 font-medium mb-3 leading-snug">
-              Find something that <span class="text-amber-300 font-bold underline">CONNECTS MULTIPLE DEVICES</span> in one local room!
+              Find something that <span class="text-rose-300 font-bold underline">BLOCKS ALL SIGNALS</span> or isolates tech physically!
             </p>
           </div>
           <div>
             <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1.5">💡 Household Ideas:</span>
-            <div class="flex flex-wrap gap-1">
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🔌 Power Strip</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🥚 Egg Carton</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🧊 Ice Tray</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🧱 LEGO Block</span>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🥣 Metal Bowl</span>
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🍫 Foil Wrap</span>
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">📦 Metal Cookie Tin</span>
             </div>
           </div>
         </div>
 
-        <!-- TARGET 3: ROUTER -->
-        <div class="bg-slate-900 border-2 border-emerald-500/60 p-4 rounded-2xl shadow-xl flex flex-col justify-between hover:border-emerald-400 transition">
+        <!-- Target 3: Physical Lock -->
+        <div class="glass-panel-interactive border-2 border-amber-500/50 p-4 rounded-2xl flex flex-col justify-between hover:shadow-glow-amber">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-emerald-950 text-emerald-300 border border-emerald-700 text-[10px] font-mono font-black px-2 py-0.5 rounded-full uppercase">Target 3</span>
-              <span class="text-2xl">🚦</span>
+            <div class="flex justify-between items-center mb-2">
+              <span class="bg-amber-950 text-amber-300 border border-amber-700 text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full uppercase">Target 3</span>
+              <span class="text-3xl">🚪</span>
             </div>
-            <h3 class="text-xl font-black text-emerald-400 mb-1">ROUTER</h3>
+            <h3 class="text-lg font-black text-amber-400 mb-1">PHYSICAL BARRIER</h3>
             <p class="text-xs text-slate-200 font-medium mb-3 leading-snug">
-              Find something that <span class="text-emerald-300 font-bold underline">DIRECTS TRAFFIC</span> or gives route directions!
+              Find something that <span class="text-amber-300 font-bold underline">STOPS PHYSICAL INTRUDERS</span> from walking in!
             </p>
           </div>
           <div>
             <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1.5">💡 Household Ideas:</span>
-            <div class="flex flex-wrap gap-1">
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🧭 GPS / Maps</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">📬 Mail Tray</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🛑 Stop Sign</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🧭 Compass</span>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🔐 Padlock</span>
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🚲 Bike Lock</span>
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🚪 Door Stopper</span>
             </div>
           </div>
         </div>
 
-        <!-- TARGET 4: PATCH CABLE -->
-        <div class="bg-slate-900 border-2 border-cyan-500/60 p-4 rounded-2xl shadow-xl flex flex-col justify-between hover:border-cyan-400 transition">
+        <!-- Target 4: Data Sanitizer -->
+        <div class="glass-panel-interactive border-2 border-emerald-500/50 p-4 rounded-2xl flex flex-col justify-between hover:shadow-glow-emerald">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-cyan-950 text-cyan-300 border border-cyan-700 text-[10px] font-mono font-black px-2 py-0.5 rounded-full uppercase">Target 4</span>
-              <span class="text-2xl">➰</span>
+            <div class="flex justify-between items-center mb-2">
+              <span class="bg-emerald-950 text-emerald-300 border border-emerald-700 text-[10px] font-mono font-black px-2.5 py-0.5 rounded-full uppercase">Target 4</span>
+              <span class="text-3xl">✂️</span>
             </div>
-            <h3 class="text-xl font-black text-cyan-400 mb-1">PATCH CABLE</h3>
+            <h3 class="text-lg font-black text-emerald-400 mb-1">DATA SANITIZER</h3>
             <p class="text-xs text-slate-200 font-medium mb-3 leading-snug">
-              Find something that <span class="text-cyan-300 font-bold underline">CARRIES DATA / POWER</span> from Point A to B!
+              Find something used to <span class="text-emerald-300 font-bold underline">PERMANENTLY DESTROY</span> sensitive information!
             </p>
           </div>
           <div>
             <span class="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1.5">💡 Household Ideas:</span>
-            <div class="flex flex-wrap gap-1">
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">📱 Charger Cord</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🔌 Extension Cord</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🛞 Garden Hose</span>
-              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🪢 Jump Rope</span>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🗑️ Paper Shredder</span>
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">✂️ Scissors</span>
+              <span class="bg-slate-950 border border-slate-800 text-slate-200 text-[11px] font-bold px-2 py-0.5 rounded-lg">🖊️ Blackout Marker</span>
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- PHASE 2 DECK: SQUAD TRIVIA SPRINT (TIME-DECAY & COMPLETION TRACKING) -->
+    <!-- PHASE 2 DECK: SQUAD TRIVIA SPRINT -->
     <div id="deck-phase-2" class="hidden w-full space-y-3">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         
-        <!-- LEFT COLUMN: QUIZ LAUNCHER & STAGE (7 Cols) -->
+        <!-- LEFT COLUMN: QUIZ LAUNCHER (7 Cols) -->
         <div class="lg:col-span-7 space-y-3">
-          <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl">
-            <div class="flex justify-between items-center mb-2">
+          <div class="glass-panel p-4 rounded-2xl shadow-xl border-cyan-500/30">
+            <div class="flex justify-between items-center mb-3">
               <div>
-                <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-wider">🎯 Quiz Launcher Deck</h2>
-                <span class="text-[10px] text-slate-400 font-mono">Time-Decay Scoring: 20 PTS ➔ 10 PTS min</span>
+                <h2 class="text-xs font-bold text-cyan-400 uppercase tracking-wider font-mono">🎯 Security+ Quiz Control Deck</h2>
+                <span class="text-[10px] text-slate-400 font-mono">Speed-Decay Scoring: 20 PTS ➔ 10 PTS floor</span>
               </div>
-              <span id="p-status" class="text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-0.5 rounded-full">Idle</span>
+              <span id="p-status" class="text-xs font-mono bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">Idle</span>
             </div>
             
-            <!-- Launch Buttons with Completion Badging -->
-            <div id="quiz-btn-grid" class="grid grid-cols-5 gap-1.5 mb-2">
-              <button id="qbtn-0" onclick="launchQuestion(0)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-1.5 px-1 rounded-xl text-xs">Q1</button>
-              <button id="qbtn-1" onclick="launchQuestion(1)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-1.5 px-1 rounded-xl text-xs">Q2</button>
-              <button id="qbtn-2" onclick="launchQuestion(2)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-1.5 px-1 rounded-xl text-xs">Q3</button>
-              <button id="qbtn-3" onclick="launchQuestion(3)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-1.5 px-1 rounded-xl text-xs">Q4</button>
-              <button id="qbtn-4" onclick="launchQuestion(4)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-1.5 px-1 rounded-xl text-xs">Q5</button>
+            <!-- Launch Buttons -->
+            <div id="quiz-btn-grid" class="grid grid-cols-5 gap-2 mb-3">
+              <button id="qbtn-0" onclick="launchQuestion(0)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-2 px-1 rounded-xl text-xs transition">Q1</button>
+              <button id="qbtn-1" onclick="launchQuestion(1)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-2 px-1 rounded-xl text-xs transition">Q2</button>
+              <button id="qbtn-2" onclick="launchQuestion(2)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-2 px-1 rounded-xl text-xs transition">Q3</button>
+              <button id="qbtn-3" onclick="launchQuestion(3)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-2 px-1 rounded-xl text-xs transition">Q4</button>
+              <button id="qbtn-4" onclick="launchQuestion(4)" class="bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-2 px-1 rounded-xl text-xs transition">Q5</button>
             </div>
 
             <div class="flex gap-2">
-              <button onclick="scoreCurrentQuestion()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2 rounded-xl text-xs shadow-lg">
+              <button onclick="scoreCurrentQuestion()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 rounded-xl text-xs shadow-glow-emerald transition">
                 ✅ Evaluate Answers & Award Points
               </button>
-              <button onclick="closeQuiz()" class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold py-2 px-3 rounded-xl text-xs">
-                Close Quiz
+              <button onclick="closeQuiz()" class="bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold py-2.5 px-4 rounded-xl text-xs transition">
+                Close Question
               </button>
             </div>
           </div>
 
           <!-- Active Quiz Stage Display -->
-          <div id="presenter-quiz-stage" class="hidden bg-slate-900 border-2 border-cyan-500/50 p-4 rounded-2xl shadow-xl">
+          <div id="presenter-quiz-stage" class="hidden glass-panel border-2 border-cyan-500/60 p-5 rounded-2xl shadow-glow-cyan animate-pop-in">
             <span id="presenter-q-num" class="text-cyan-400 font-mono font-bold text-xs uppercase block mb-1">Question</span>
-            <h2 id="presenter-q-text" class="text-base md:text-lg font-extrabold text-white mb-3 leading-snug">Question text...</h2>
-            <div id="presenter-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+            <h2 id="presenter-q-text" class="text-base md:text-lg font-extrabold text-white mb-4 leading-relaxed">Question text...</h2>
+            <div id="presenter-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: TOP 10 LEADERBOARD (5 Cols) -->
-        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl">
-          <h2 class="text-sm font-black text-cyan-400 mb-2 flex items-center justify-between border-b border-slate-800 pb-1.5 uppercase">
-            <span>🏆 TOP 10 LEADERBOARD</span>
-            <span id="top10-squad-count" class="text-[10px] font-mono text-slate-400 font-normal">0 Squads</span>
+        <!-- RIGHT COLUMN: LEADERBOARD (5 Cols) -->
+        <div class="lg:col-span-5 glass-panel p-4 rounded-2xl shadow-xl border-amber-500/20">
+          <h2 class="text-xs font-black text-amber-400 mb-3 flex items-center justify-between border-b border-slate-800 pb-2 uppercase tracking-wider font-mono">
+            <span>🏆 TOP LEADERBOARD</span>
+            <span id="top10-squad-count" class="text-[10px] text-slate-400 font-normal">0 Squads</span>
           </h2>
-          <div id="presenter-teams-list" class="space-y-1.5 max-h-[380px] overflow-y-auto"></div>
+          <div id="presenter-teams-list" class="space-y-2 max-h-[380px] overflow-y-auto"></div>
         </div>
 
       </div>
     </div>
 
-    <!-- PHASE 3 DECK: SECRET SPOTLIGHT CHALLENGE (AUTO-SCORING & SPEED FEED) -->
+    <!-- PHASE 3 DECK: SECRET SPOTLIGHT CHALLENGE -->
     <div id="deck-phase-3" class="hidden w-full space-y-3">
-      <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl shadow-xl text-center flex justify-between items-center">
+      <div class="glass-panel p-4 rounded-2xl shadow-xl text-center flex justify-between items-center border-purple-500/30">
         <div class="text-left">
-          <span class="text-amber-400 font-mono text-[10px] font-bold uppercase tracking-wider block">Round 3: Zoom Charades</span>
-          <h2 class="text-xl font-black text-white">Secret Spotlight Challenge</h2>
+          <span class="text-purple-400 font-mono text-[10px] font-bold uppercase tracking-wider block">Round 3: Zoom Cyber Charades</span>
+          <h2 class="text-xl md:text-2xl font-black text-white">Secret Spotlight Challenge</h2>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-[11px] font-mono text-cyan-300 bg-cyan-950 border border-cyan-800 px-3 py-1 rounded-full font-bold">Auto-Scoring Enabled: 1st (+30) | 2nd (+20) | 3rd (+10) | Correct (+5)</span>
-          <button id="p3-close-btn" onclick="closePhase3Guessing()" class="hidden bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold px-3 py-1.5 rounded-xl">
-            Close Guessing
+        <div class="flex items-center gap-3">
+          <span class="text-[11px] font-mono text-cyan-300 bg-cyan-950 border border-cyan-800 px-3 py-1.5 rounded-full font-bold">
+            Auto-Scoring: 1st (+30) | 2nd (+20) | 3rd (+10) | Correct (+5)
+          </span>
+          <button id="p3-close-btn" onclick="closePhase3Guessing()" class="hidden bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-bold px-3.5 py-1.5 rounded-xl">
+            Close Round
           </button>
         </div>
       </div>
 
-      <!-- 5 REDESIGNED SCENARIO CARDS WITH INSTANT GUESSING LAUNCHERS -->
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-2.5">
+      <!-- 5 SCENARIO CARDS -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
         
-        <div class="bg-slate-900 border-2 border-cyan-500/50 p-3 rounded-2xl shadow-xl flex flex-col justify-between text-left">
+        <div class="glass-panel-interactive border-2 border-cyan-500/50 p-3.5 rounded-2xl flex flex-col justify-between text-left">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Opt 1</span>
-              <span class="text-xl">🛜</span>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Option 1</span>
+              <span class="text-xl">🚪</span>
             </div>
-            <h3 class="font-bold text-cyan-400 text-xs mb-1">2.4 GHz vs 5 GHz</h3>
-            <p class="text-[10px] text-slate-300 leading-tight">Heavy bass passing walls vs super fast speed.</p>
+            <h3 class="font-bold text-cyan-400 text-xs mb-1">Tailgating Attack</h3>
+            <p class="text-[10px] text-slate-300 leading-relaxed">Sneaking through a secure door right behind someone with heavy boxes.</p>
           </div>
-          <button onclick="openPhase3Guessing(0)" class="mt-3 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-700 text-[10px] font-bold py-1.5 px-2 rounded-xl">
+          <button onclick="openPhase3Guessing(0)" class="mt-3 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-700 text-[10px] font-bold py-2 px-2 rounded-xl transition">
             🔓 Open Guessing
           </button>
         </div>
 
-        <div class="bg-slate-900 border-2 border-rose-500/50 p-3 rounded-2xl shadow-xl flex flex-col justify-between text-left">
+        <div class="glass-panel-interactive border-2 border-rose-500/50 p-3.5 rounded-2xl flex flex-col justify-between text-left">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Opt 2</span>
-              <span class="text-xl">🧱</span>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Option 2</span>
+              <span class="text-xl">💻</span>
             </div>
-            <h3 class="font-bold text-rose-400 text-xs mb-1">Human Firewall</h3>
-            <p class="text-[10px] text-slate-300 leading-tight">Block bad guys while letting safe traffic through.</p>
+            <h3 class="font-bold text-rose-400 text-xs mb-1">Ransomware Attack</h3>
+            <p class="text-[10px] text-slate-300 leading-relaxed">Screen locking up, panic typing, holding up a fake ransom note sign.</p>
           </div>
-          <button onclick="openPhase3Guessing(1)" class="mt-3 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-700 text-[10px] font-bold py-1.5 px-2 rounded-xl">
+          <button onclick="openPhase3Guessing(1)" class="mt-3 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-700 text-[10px] font-bold py-2 px-2 rounded-xl transition">
             🔓 Open Guessing
           </button>
         </div>
 
-        <div class="bg-slate-900 border-2 border-amber-500/50 p-3 rounded-2xl shadow-xl flex flex-col justify-between text-left">
+        <div class="glass-panel-interactive border-2 border-amber-500/50 p-3.5 rounded-2xl flex flex-col justify-between text-left">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-amber-950 text-amber-300 border border-amber-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Opt 3</span>
-              <span class="text-xl">☕</span>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="bg-amber-950 text-amber-300 border border-amber-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Option 3</span>
+              <span class="text-xl">🎣</span>
             </div>
-            <h3 class="font-bold text-amber-400 text-xs mb-1">Public Wi-Fi Trap</h3>
-            <p class="text-[10px] text-slate-300 leading-tight">Snooping on unencrypted coffee shop banking.</p>
+            <h3 class="font-bold text-amber-400 text-xs mb-1">Phishing Email Trap</h3>
+            <p class="text-[10px] text-slate-300 leading-relaxed">Excited about a fake gift card email, reaching to tap link, then stopping!</p>
           </div>
-          <button onclick="openPhase3Guessing(2)" class="mt-3 bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-700 text-[10px] font-bold py-1.5 px-2 rounded-xl">
+          <button onclick="openPhase3Guessing(2)" class="mt-3 bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-700 text-[10px] font-bold py-2 px-2 rounded-xl transition">
             🔓 Open Guessing
           </button>
         </div>
 
-        <div class="bg-slate-900 border-2 border-emerald-500/50 p-3 rounded-2xl shadow-xl flex flex-col justify-between text-left">
+        <div class="glass-panel-interactive border-2 border-emerald-500/50 p-3.5 rounded-2xl flex flex-col justify-between text-left">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Opt 4</span>
-              <span class="text-xl">🛡️</span>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Option 4</span>
+              <span class="text-xl">👁️</span>
             </div>
-            <h3 class="font-bold text-emerald-400 text-xs mb-1">MFA Digital Armor</h3>
-            <p class="text-[10px] text-slate-300 leading-tight">Password entered, then tapping phone text code lock.</p>
+            <h3 class="font-bold text-emerald-400 text-xs mb-1">Biometric Vault</h3>
+            <p class="text-[10px] text-slate-300 leading-relaxed">Scanning thumb, staring into facial camera, typing PIN to unlock vault.</p>
           </div>
-          <button onclick="openPhase3Guessing(3)" class="mt-3 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-700 text-[10px] font-bold py-1.5 px-2 rounded-xl">
+          <button onclick="openPhase3Guessing(3)" class="mt-3 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-700 text-[10px] font-bold py-2 px-2 rounded-xl transition">
             🔓 Open Guessing
           </button>
         </div>
 
-        <div class="bg-slate-900 border-2 border-purple-500/50 p-3 rounded-2xl shadow-xl flex flex-col justify-between text-left">
+        <div class="glass-panel-interactive border-2 border-purple-500/50 p-3.5 rounded-2xl flex flex-col justify-between text-left">
           <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Opt 5</span>
-              <span class="text-xl">📖</span>
+            <div class="flex justify-between items-center mb-1.5">
+              <span class="bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-mono font-black px-2 py-0.5 rounded-full">Option 5</span>
+              <span class="text-xl">🕵️</span>
             </div>
-            <h3 class="font-bold text-purple-400 text-xs mb-1">DNS Phonebook</h3>
-            <p class="text-[10px] text-slate-300 leading-tight">Looking up website names to find IP numbers.</p>
+            <h3 class="font-bold text-purple-400 text-xs mb-1">Shoulder Surfing</h3>
+            <p class="text-[10px] text-slate-300 leading-relaxed">Creeping behind someone with binoculars to steal their typed password.</p>
           </div>
-          <button onclick="openPhase3Guessing(4)" class="mt-3 bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-700 text-[10px] font-bold py-1.5 px-2 rounded-xl">
+          <button onclick="openPhase3Guessing(4)" class="mt-3 bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-700 text-[10px] font-bold py-2 px-2 rounded-xl transition">
             🔓 Open Guessing
           </button>
         </div>
@@ -409,160 +503,221 @@
       </div>
 
       <!-- LIVE SPEED FEED FOR INCOMING GUESSES -->
-      <div id="p3-speed-feed-container" class="hidden bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl">
-        <div class="flex justify-between items-center mb-2">
-          <h3 id="p3-speed-feed-title" class="text-xs font-black text-cyan-400 uppercase tracking-wider">⚡ LIVE SPEED FEED</h3>
-          <button onclick="scorePhase3Round()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-4 py-1.5 rounded-xl text-xs shadow-lg">
-            ✅ Score Round & Award Points
+      <div id="p3-speed-feed-container" class="hidden glass-panel p-4 rounded-2xl shadow-xl border-amber-500/30 animate-pop-in">
+        <div class="flex justify-between items-center mb-3">
+          <h3 id="p3-speed-feed-title" class="text-xs font-black text-amber-400 uppercase tracking-wider font-mono flex items-center gap-2">
+            <span class="animate-ping inline-block w-2 h-2 rounded-full bg-amber-400"></span> ⚡ LIVE GUESS FEED
+          </h3>
+          <button onclick="scorePhase3Round()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black px-5 py-2 rounded-xl text-xs shadow-glow-emerald transition">
+            ✅ Score Round & Award Speed Points
           </button>
         </div>
-        <div id="p3-feed-list" class="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-2 bg-slate-950 rounded-xl border border-slate-800">
-          <p class="text-xs text-slate-500 italic">Waiting for families to submit guesses on mobile...</p>
+        <div id="p3-feed-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-3 bg-slate-950/80 rounded-xl border border-slate-800">
+          <p class="text-xs text-slate-500 italic">Waiting for family squads to submit guesses on mobile terminals...</p>
         </div>
       </div>
     </div>
 
-    <!-- PHASE 4 DECK: FINAL PODIUM CELEBRATION (3-PODIUM STANDS) -->
+    <!-- PHASE 4 DECK: FINAL PODIUM CELEBRATION -->
     <div id="deck-phase-4" class="hidden w-full space-y-4 text-center">
-      <div class="bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 border-2 border-amber-500/50 p-6 rounded-3xl shadow-2xl">
-        <span class="text-amber-400 font-mono text-xs font-bold uppercase tracking-widest block mb-1">Mission Accomplished</span>
-        <h2 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 mb-4">
+      <div class="glass-panel p-8 rounded-3xl shadow-glow-amber border-amber-500/40 relative overflow-hidden">
+        <span class="text-amber-400 font-mono text-xs font-extrabold uppercase tracking-widest block mb-2">Operation Complete</span>
+        <h2 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500 mb-6">
           FINAL COMMAND PODIUM
         </h2>
-        <div id="podium-display" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end max-w-4xl mx-auto pt-2"></div>
+        <div id="podium-display" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end max-w-4xl mx-auto pt-4"></div>
+      </div>
+
+      <!-- Family Takeaway Summary Blueprint -->
+      <div class="glass-panel p-6 rounded-2xl max-w-4xl mx-auto text-left border-cyan-500/30">
+        <h3 class="text-sm font-extrabold text-cyan-400 uppercase tracking-wider font-mono mb-3 flex items-center gap-2">
+          <span>📋</span> HOUSEHOLD SECURITY BLUEPRINT (TAKE THIS HOME!)
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
+            <span class="text-emerald-400 font-bold block mb-1">1. Guest Network Rule</span>
+            <p class="text-slate-300 leading-relaxed">Put smart TVs, doorbells, and bulbs on a Guest Wi-Fi so hackers can't pivot to laptops.</p>
+          </div>
+          <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
+            <span class="text-cyan-400 font-bold block mb-1">2. Passphrase Length</span>
+            <p class="text-slate-300 leading-relaxed">Use 4 random words like <code class="text-amber-300">purple-turtle-dancing-slowly</code> instead of short complex symbols.</p>
+          </div>
+          <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800">
+            <span class="text-amber-400 font-bold block mb-1">3. Family Code Word</span>
+            <p class="text-slate-300 leading-relaxed">Pick a secret family code word today to verify any sudden emergency phone calls or AI scams.</p>
+          </div>
+        </div>
       </div>
     </div>
 
   </div>
 
   <!-- =================================================================== -->
-  <!-- 2. SCOREKEEPER VIEW (?role=scorekeeper) - KRISTINA PHASE 3 EXCLUSIVE-->
+  <!-- 2. SCOREKEEPER VIEW (?role=scorekeeper)                             -->
   <!-- =================================================================== -->
-  <div id="role-scorekeeper" class="hidden w-full max-w-2xl">
-    <header class="mb-4 text-center border-b border-slate-800 pb-3">
-      <h1 class="text-xl font-extrabold text-amber-400">⚡ KRISTINA'S SCOREKEEPER PANEL</h1>
-      <p class="text-xs text-slate-400 mt-1">Award +50 Spotlight Performance points or tap Fun Bonus to roll random (+5 / +10) vibes points!</p>
+  <div id="role-scorekeeper" class="hidden w-full max-w-2xl z-10">
+    <header class="glass-panel p-5 rounded-2xl mb-4 text-center border-amber-500/30 shadow-xl">
+      <span class="text-amber-400 font-mono text-[10px] font-extrabold uppercase tracking-widest block mb-1">Scorekeeper Operations</span>
+      <h1 class="text-xl font-extrabold text-white">⚡ KRISTINA'S CONTROL PANEL</h1>
+      <p class="text-xs text-slate-400 mt-1">Award +50 Spotlight Performance points or trigger Good Vibes bonuses live onto player screens!</p>
     </header>
 
-    <div id="sk-teams-list" class="space-y-2">
-      <!-- Live admin controls -->
+    <div id="sk-teams-list" class="space-y-2.5">
+      <!-- Dynamic live team admin controls -->
     </div>
   </div>
 
   <!-- =================================================================== -->
   <!-- 3. STUDENT / FAMILY MOBILE VIEW (?role=player)                      -->
   <!-- =================================================================== -->
-  <div id="role-player" class="hidden w-full max-w-md flex flex-col items-center relative">
+  <div id="role-player" class="hidden w-full max-w-md flex flex-col items-center relative z-10">
 
     <!-- CELEBRATORY BONUS ANIMATION OVERLAY -->
     <div id="player-bonus-overlay" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 text-center">
-      <div class="bg-gradient-to-b from-amber-950 via-slate-900 to-amber-950 border-4 border-amber-400 p-8 rounded-3xl shadow-2xl animate-pop-in max-w-xs w-full flex flex-col items-center">
+      <div class="glass-panel border-4 border-amber-400 p-8 rounded-3xl shadow-glow-amber animate-pop-in max-w-xs w-full flex flex-col items-center">
         <div class="text-6xl mb-3 animate-bounce">🎉 🎲 🌟</div>
         <h3 id="bonus-overlay-title" class="text-xl font-black text-amber-300 uppercase tracking-widest mb-1">GOOD VIBES BONUS!</h3>
-        <p class="text-xs text-slate-300 mb-4">Awarded by Kristina</p>
+        <p class="text-xs text-slate-300 mb-4 font-mono">Awarded by Kristina</p>
         <div id="bonus-overlay-pts" class="text-5xl font-black font-mono text-emerald-400 mb-3 drop-shadow-[0_0_15px_rgba(52,211,153,0.8)]">+10 PTS</div>
-        <span class="text-[10px] font-mono text-amber-400 uppercase tracking-widest animate-pulse font-bold">Keep up the awesome energy!</span>
+        <span class="text-[10px] font-mono text-amber-400 uppercase tracking-widest animate-pulse font-bold">Keep up the awesome defense!</span>
       </div>
     </div>
 
-    <!-- Sign-In Box -->
-    <div id="player-signin" class="w-full bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-2xl text-center">
-      <h2 class="text-xl font-bold mb-1 text-emerald-400">Enlist Your Squad</h2>
-      <p class="text-xs text-slate-400 mb-4">Enter your family team name to play!</p>
+    <!-- Sign-In Terminal Card -->
+    <div id="player-signin" class="w-full glass-panel p-6 rounded-2xl shadow-2xl text-center border-cyan-500/40">
+      <div class="w-12 h-12 rounded-2xl bg-cyan-950/80 border border-cyan-700 flex items-center justify-center text-2xl mx-auto mb-3 text-cyan-400 shadow-glow-cyan">
+        🛡️
+      </div>
+      <h2 class="text-xl font-extrabold mb-1 text-white">Enlist Your Squad</h2>
+      <p class="text-xs text-slate-400 mb-5">Enter your family team name to join the simulation!</p>
       <input id="team-name-input" type="text" placeholder="e.g., Miller Squad" 
-             class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white mb-4 focus:outline-none focus:border-cyan-400 text-center font-bold text-lg">
-      <button onclick="joinGame()" class="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-black py-3 rounded-xl shadow-lg text-lg">
-        ENLIST TEAM
+             class="w-full bg-slate-950/90 border border-slate-700 rounded-xl p-3.5 text-white mb-4 focus:outline-none focus:border-cyan-400 font-bold text-center text-lg placeholder:text-slate-600 transition">
+      <button onclick="joinGame()" class="w-full bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-black py-3.5 rounded-xl shadow-glow-cyan text-lg active:scale-95 transition">
+        ENLIST TERMINAL
+      </button>
+
+      <!-- Discreet Host Access Portal for Teacher Desktop -->
+      <button onclick="promptHostLogin()" class="mt-6 text-[10px] font-mono text-slate-600 hover:text-cyan-400 underline transition">
+        🔒 Host / Presenter Login
       </button>
     </div>
 
-    <!-- Active Player Hub -->
+    <!-- Active Player Mobile Hub -->
     <div id="player-hub" class="hidden w-full space-y-4">
-      <!-- Status Badge -->
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center shadow-lg">
+      <!-- Status Header -->
+      <div class="glass-panel p-4 rounded-2xl flex justify-between items-center shadow-lg border-slate-800">
         <div>
-          <span class="text-xs text-slate-400 font-mono block uppercase">Your Squad</span>
+          <span class="text-[10px] text-slate-400 font-mono block uppercase tracking-wider">Squad Terminal</span>
           <span id="player-squad-name" class="font-extrabold text-cyan-400 text-lg">---</span>
         </div>
         <div class="text-right">
-          <span class="text-xs text-slate-400 font-mono block uppercase">Live Score</span>
+          <span class="text-[10px] text-slate-400 font-mono block uppercase tracking-wider">Live Score</span>
           <span id="player-squad-score" class="font-mono font-black text-emerald-400 text-2xl">0 PTS</span>
         </div>
       </div>
 
       <!-- Phase 2 Touch Quiz Pad -->
-      <div id="player-quiz-pad" class="hidden bg-slate-900 border-2 border-cyan-500/50 p-5 rounded-2xl shadow-2xl">
+      <div id="player-quiz-pad" class="hidden glass-panel border-2 border-cyan-500/60 p-5 rounded-2xl shadow-glow-cyan animate-pop-in">
         <span id="player-q-num" class="text-cyan-400 font-mono text-xs font-bold uppercase block mb-1">Question</span>
-        <p id="player-q-text" class="text-base font-bold text-white mb-4">Question text...</p>
+        <p id="player-q-text" class="text-base font-bold text-white mb-4 leading-relaxed">Question text...</p>
         <div id="player-buttons-grid" class="grid grid-cols-1 gap-3"></div>
-        <div id="player-lock-msg" class="mt-4 p-3 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-center text-emerald-400 font-bold text-sm hidden">
-          ✅ Answer Locked In! Watch Zoom for results.
+        <div id="player-lock-msg" class="mt-4 p-3 bg-emerald-950/80 border border-emerald-500/50 rounded-xl text-center text-emerald-400 font-bold text-sm hidden">
+          ✅ Answer Locked In! Watch Zoom for live results.
         </div>
       </div>
 
       <!-- Phase 3 Charades Touch Pad -->
-      <div id="player-p3-pad" class="hidden bg-slate-900 border-2 border-amber-500/50 p-5 rounded-2xl shadow-2xl">
-        <span class="text-amber-400 font-mono text-xs font-bold uppercase block mb-1">Phase 3: Zoom Charades</span>
-        <p class="text-sm font-bold text-white mb-4">Which Option is the spotlighted family acting out?</p>
+      <div id="player-p3-pad" class="hidden glass-panel border-2 border-amber-500/60 p-5 rounded-2xl shadow-glow-amber animate-pop-in">
+        <span class="text-amber-400 font-mono text-xs font-bold uppercase block mb-1">Phase 3: Cyber Charades</span>
+        <p class="text-sm font-bold text-white mb-4">Which Option is the spotlighted team acting out on Zoom?</p>
         
         <div class="grid grid-cols-1 gap-2.5">
-          <button onclick="submitP3Answer(0)" class="p3-opt-btn bg-cyan-950 hover:bg-cyan-900 border border-cyan-700 text-cyan-300 font-bold py-3 px-4 rounded-xl text-left text-sm flex items-center justify-between">
-            <span>Option 1: 2.4 GHz vs 5 GHz Wi-Fi</span><span>🛜</span>
+          <button onclick="submitP3Answer(0)" class="p3-opt-btn bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-700 text-cyan-300 font-bold py-3 px-4 rounded-xl text-left text-xs sm:text-sm flex items-center justify-between transition">
+            <span>Option 1: Tailgating Attack</span><span>🚪</span>
           </button>
-          <button onclick="submitP3Answer(1)" class="p3-opt-btn bg-rose-950 hover:bg-rose-900 border border-rose-700 text-rose-300 font-bold py-3 px-4 rounded-xl text-left text-sm flex items-center justify-between">
-            <span>Option 2: Human Firewall</span><span>🧱</span>
+          <button onclick="submitP3Answer(1)" class="p3-opt-btn bg-rose-950/80 hover:bg-rose-900 border border-rose-700 text-rose-300 font-bold py-3 px-4 rounded-xl text-left text-xs sm:text-sm flex items-center justify-between transition">
+            <span>Option 2: Ransomware Incident</span><span>💻</span>
           </button>
-          <button onclick="submitP3Answer(2)" class="p3-opt-btn bg-amber-950 hover:bg-amber-900 border border-amber-700 text-amber-300 font-bold py-3 px-4 rounded-xl text-left text-sm flex items-center justify-between">
-            <span>Option 3: Public Wi-Fi Trap</span><span>☕</span>
+          <button onclick="submitP3Answer(2)" class="p3-opt-btn bg-amber-950/80 hover:bg-amber-900 border border-amber-700 text-amber-300 font-bold py-3 px-4 rounded-xl text-left text-xs sm:text-sm flex items-center justify-between transition">
+            <span>Option 3: Phishing Email Trap</span><span>🎣</span>
           </button>
-          <button onclick="submitP3Answer(3)" class="p3-opt-btn bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 font-bold py-3 px-4 rounded-xl text-left text-sm flex items-center justify-between">
-            <span>Option 4: MFA Digital Armor</span><span>🛡️</span>
+          <button onclick="submitP3Answer(3)" class="p3-opt-btn bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 font-bold py-3 px-4 rounded-xl text-left text-xs sm:text-sm flex items-center justify-between transition">
+            <span>Option 4: Biometric Vault Access</span><span>👁️</span>
           </button>
-          <button onclick="submitP3Answer(4)" class="p3-opt-btn bg-purple-950 hover:bg-purple-900 border border-purple-700 text-purple-300 font-bold py-3 px-4 rounded-xl text-left text-sm flex items-center justify-between">
-            <span>Option 5: DNS Phonebook</span><span>📖</span>
+          <button onclick="submitP3Answer(4)" class="p3-opt-btn bg-purple-950/80 hover:bg-purple-900 border border-purple-700 text-purple-300 font-bold py-3 px-4 rounded-xl text-left text-xs sm:text-sm flex items-center justify-between transition">
+            <span>Option 5: Shoulder Surfing</span><span>🕵️</span>
           </button>
         </div>
 
-        <div id="player-p3-msg" class="mt-4 p-3 rounded-xl text-center font-bold text-sm hidden"></div>
+        <div id="player-p3-msg" class="mt-4 p-3 rounded-xl text-center font-bold text-xs sm:text-sm hidden"></div>
       </div>
 
-      <!-- Waiting Indicator -->
-      <div id="player-idle-msg" class="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl text-center">
-        <p class="text-slate-300 font-medium text-sm">📺 Keep eyes on the main Zoom screen!</p>
-        <p class="text-xs text-slate-500 mt-1">Touch pads will open here automatically during active rounds.</p>
+      <!-- Waiting Idle Card -->
+      <div id="player-idle-msg" class="glass-panel p-6 rounded-2xl text-center border-slate-800">
+        <p class="text-slate-300 font-medium text-sm">📺 Keep eyes on the main Zoom presenter screen!</p>
+        <p class="text-xs text-slate-500 mt-1">Interactive response pads will open on your terminal automatically during active rounds.</p>
       </div>
     </div>
   </div>
 
   <!-- =================================================================== -->
-  <!-- JAVASCRIPT & FIREBASE LOGIC                                         -->
+  <!-- JAVASCRIPT & FIREBASE ENGINE                                        -->
   <!-- =================================================================== -->
   <script>
-    // ⚙️ PASTE YOUR FIREBASE CONFIG HERE
+    // 🔒 Secret Host/Scorekeeper PIN
+    const HOST_PIN = "2026";
+
+    // ⚙️ FIREBASE CONFIGURATION
     const firebaseConfig = {
-  apiKey: "AIzaSyDEBqm9rZUUbKURYGxgc0xBdfztsCtaPzg",
-  authDomain: "operation-household-network.firebaseapp.com",
-  databaseURL: "https://operation-household-network-default-rtdb.firebaseio.com",
-  projectId: "operation-household-network",
-  storageBucket: "operation-household-network.firebasestorage.app",
-  messagingSenderId: "73831376478",
-  appId: "1:73831376478:web:4110b0e2402924a16876cf"
+      apiKey: "AIzaSyDEBqm9rZUUbKURYGxgc0xBdfztsCtaPzg",
+      authDomain: "operation-household-network.firebaseapp.com",
+      databaseURL: "https://operation-household-network-default-rtdb.firebaseio.com",
+      projectId: "operation-household-network",
+      storageBucket: "operation-household-network.firebasestorage.app",
+      messagingSenderId: "73831376478",
+      appId: "1:73831376478:web:4110b0e2402924a16876cf"
     };
     
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 5 Shuffled Quiz Questions
+    // 5 High-Value Security+ "Aha!" Quiz Questions
     const questions = [
-      { id: 0, text: "Which port number locks down SECURE web browsing (HTTPS)—the one that shows the padlock icon when shopping online?", options: ["Port 80", "Port 53", "Port 443", "Port 22"], correct: 2 },
-      { id: 1, text: "Is it safe to check online banking or pay bills while connected to free public Wi-Fi at a coffee shop or airport?", options: ["No! Unless using a VPN or mobile cellular data", "Yes, public Wi-Fi is completely safe", "Yes, if the network has a password", "Yes, but only on an iPad"], correct: 0 },
-      { id: 2, text: "What digital armor stops a hacker from entering your account even if they stole your exact password?", options: ["Changing your username", "Clearing browser history", "Unplugging the router", "Multi-Factor Authentication (MFA / 2FA)"], correct: 3 },
-      { id: 3, text: "Which Wi-Fi frequency acts like 'heavy bass' and travels much better through thick walls and across long distances?", options: ["5 GHz", "2.4 GHz", "Bluetooth", "Infrared"], correct: 1 },
-      { id: 4, text: "Which networking service acts as the 'Internet Phonebook,' translating website names like amazon.com into IP addresses?", options: ["DNS (Domain Name System)", "Router Switch", "Port 80", "Firewall"], correct: 0 }
+      { 
+        id: 0, 
+        text: "Which password takes a hacker's supercomputer exponentially LONGER to crack using brute-force tools?", 
+        options: ["P@ssw0rd1! (9 chars)", "Tr0ub4d0r&3 (11 chars)", "purple-turtle-dancing-slowly (27 chars)", "Admin2026! (10 chars)"], 
+        correct: 2 
+      },
+      { 
+        id: 1, 
+        text: "Why is plugging your phone directly into a free public USB wall charging port at an airport or hotel risky?", 
+        options: ["Degrades battery lifespan", "USB cables carry data & power; malware can transfer (Juice Jacking)", "Bypasses your phone's passcode lock", "Overloads internal Wi-Fi chip"], 
+        correct: 1 
+      },
+      { 
+        id: 2, 
+        text: "What does turning on 'Incognito Mode' or 'Private Browsing' in your web browser ACTUALLY do?", 
+        options: ["Makes you 100% anonymous to your Internet Provider", "Encrypts all network traffic from hackers", "Hides your location and IP address", "Only stops saving local history & cookies on THAT device"], 
+        correct: 3 
+      },
+      { 
+        id: 3, 
+        text: "Why do cybercriminals target low-value smart home tech like Wi-Fi light bulbs or smart plugs?", 
+        options: ["To run up your utility electricity bill", "To use the bulb as a stepping stone (pivot) to reach laptops on the Wi-Fi", "To turn lights off at night", "To steal the bulb's operating code"], 
+        correct: 1 
+      },
+      { 
+        id: 4, 
+        text: "With modern AI voice cloning tools used in emergency phone scams, how much audio of a relative's voice is needed to clone it?", 
+        options: ["At least 10 hours of studio audio", "About 1 hour of clear speech", "Just 3 to 5 seconds of audio from social media", "AI cannot clone human voices over phones"], 
+        correct: 2 
+      }
     ];
 
-    // Generate Dynamic QR Code targeting Player Landing page directly (?role=player)
-    const playerLandingUrl = window.location.href.split('?')[0] + '?role=player';
+    // Generate Dynamic QR Code explicitly forcing ?role=player
+    const baseUrl = window.location.origin + window.location.pathname;
+    const playerLandingUrl = baseUrl + '?role=player';
     document.getElementById('lobby-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(playerLandingUrl)}`;
 
     // -------------------------------------------------------------------
@@ -570,8 +725,8 @@
     // -------------------------------------------------------------------
     let currentPhase = 0;
     const phaseTitles = [
-      "Phase 0: Lobby & IoT Race",
-      "Phase 1: Hardware Scavenger Hunt",
+      "Phase 0: Lobby & Threat Surface Audit",
+      "Phase 1: Security Controls Scavenger Hunt",
       "Phase 2: Squad Trivia Sprint",
       "Phase 3: Secret Spotlight Challenge",
       "Phase 4: Final Victory Podium"
@@ -605,7 +760,7 @@
     });
 
     // -------------------------------------------------------------------
-    // ROUTE PARSER & ROLE CONTROLLER
+    // ROUTE PARSER & ROLE CONTROLLER (PIN GATEKEEPER)
     // -------------------------------------------------------------------
     function hideAllViews() {
       document.getElementById('role-launcher').classList.add('hidden');
@@ -614,13 +769,23 @@
       document.getElementById('role-player').classList.add('hidden');
     }
 
-    function setRole(role) {
+    function setRole(role, promptPin = true) {
+      // Security Check for Host / Scorekeeper
+      if ((role === 'presenter' || role === 'scorekeeper') && promptPin) {
+        const entered = prompt("🔒 Enter Host / Scorekeeper PIN:");
+        if (entered !== HOST_PIN) {
+          alert("❌ Access Denied: Invalid Host PIN.");
+          setRole('player', false);
+          return;
+        }
+      }
+
       hideAllViews();
       const switchBtn = document.getElementById('switch-role-btn');
 
       if (role === 'player') {
         document.getElementById('role-player').classList.remove('hidden');
-        if (switchBtn) switchBtn.classList.add('hidden'); // Lock player in!
+        if (switchBtn) switchBtn.classList.add('hidden'); // Lock mobile player in view
       } else if (role === 'presenter') {
         document.getElementById('role-presenter').classList.remove('hidden');
         if (switchBtn) switchBtn.classList.remove('hidden');
@@ -630,28 +795,35 @@
       }
     }
 
-    function showRoleLauncher() {
-      hideAllViews();
-      document.getElementById('role-launcher').classList.remove('hidden');
-      const switchBtn = document.getElementById('switch-role-btn');
-      if (switchBtn) switchBtn.classList.remove('hidden');
+    function promptHostLogin() {
+      setRole('presenter', true);
     }
 
-    // Read initial URL params
+    function showRoleLauncher() {
+      const entered = prompt("🔒 Enter Host / Scorekeeper PIN to access menu:");
+      if (entered === HOST_PIN) {
+        hideAllViews();
+        document.getElementById('role-launcher').classList.remove('hidden');
+        document.getElementById('role-launcher').classList.add('flex');
+      } else {
+        alert("❌ Access Denied: Invalid Host PIN.");
+      }
+    }
+
+    // Read initial URL params & default everyone else to Player
     const urlParams = new URLSearchParams(window.location.search);
     const initialRole = urlParams.get('role');
 
-    if (initialRole) {
-      setRole(initialRole);
+    if (initialRole === 'presenter' || initialRole === 'scorekeeper') {
+      setRole(initialRole, true);
     } else {
-      showRoleLauncher();
+      setRole('player', false);
     }
 
     // Player State Variables
     let myTeamId = localStorage.getItem("myTeamId") || null;
     let myTeamName = localStorage.getItem("myTeamName") || null;
     let currentQ = null;
-    let currentQStartTime = null;
 
     if (myTeamId && myTeamName) {
       document.getElementById("player-signin").classList.add("hidden");
@@ -725,7 +897,7 @@
       });
 
       const msgBox = document.getElementById("player-p3-msg");
-      msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-sm bg-amber-950/80 border border-amber-500/40 text-amber-300";
+      msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-xs sm:text-sm bg-amber-950/80 border border-amber-500/40 text-amber-300";
       msgBox.innerText = "✅ Guess Submitted! Watch Zoom screen for results.";
       msgBox.classList.remove("hidden");
 
@@ -746,17 +918,17 @@
       const startTime = Date.now();
       db.ref("gameState").set({ activeQuestion: currentActiveQ, startTime: startTime });
       document.getElementById("p-status").innerText = `Live: Q${index + 1}`;
-      document.getElementById("p-status").className = "text-xs font-mono bg-cyan-950 text-cyan-400 border border-cyan-700 px-2.5 py-0.5 rounded-full animate-pulse";
+      document.getElementById("p-status").className = "text-xs font-mono bg-cyan-950 text-cyan-400 border border-cyan-700 px-3 py-1 rounded-full animate-pulse";
     }
 
     function closeQuiz() {
       currentActiveQ = null;
       db.ref("gameState").set({ activeQuestion: null });
       document.getElementById("p-status").innerText = "Idle";
-      document.getElementById("p-status").className = "text-xs font-mono bg-slate-800 text-slate-400 px-2.5 py-0.5 rounded-full";
+      document.getElementById("p-status").className = "text-xs font-mono bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700";
     }
 
-    // EVALUATE PHASE 2 QUESTION WITH TIME-DECAY SCORING & BADGING
+    // EVALUATE PHASE 2 QUESTION WITH TIME-DECAY SCORING
     function scoreCurrentQuestion() {
       if (!currentActiveQ) return alert("No active question is currently launched!");
 
@@ -798,7 +970,7 @@
 
       document.getElementById("p3-speed-feed-container").classList.remove("hidden");
       document.getElementById("p3-close-btn").classList.remove("hidden");
-      document.getElementById("p3-speed-feed-title").innerText = `⚡ LIVE SPEED FEED (OPTION ${optionIndex + 1})`;
+      document.getElementById("p3-speed-feed-title").innerText = `⚡ LIVE GUESS FEED (OPTION ${optionIndex + 1})`;
     }
 
     function closePhase3Guessing() {
@@ -822,7 +994,7 @@
 
         correctGuesses.forEach((guess, index) => {
           let pts = 5; // Default correct guess
-          if (index === 0) pts = 30;     // 1st Correct
+          if (index === 0) pts = 30;      // 1st Correct
           else if (index === 1) pts = 20; // 2nd Correct
           else if (index === 2) pts = 10; // 3rd Correct
 
@@ -838,11 +1010,7 @@
       });
     }
 
-    function addPoints(teamId, amount) {
-      db.ref(`teams/${teamId}/score`).transaction(s => (s || 0) + amount);
-    }
-
-    // KRISTINA SPOTLIGHT PERFORMANCE BONUS (+50) WITH ANIMATION TRIGGER
+    // KRISTINA SPOTLIGHT PERFORMANCE BONUS (+50)
     function awardSpotlightBonus(teamId) {
       db.ref(`teams/${teamId}/score`).transaction(s => (s || 0) + 50);
       db.ref(`teams/${teamId}/lastBonus`).set({
@@ -852,7 +1020,7 @@
       });
     }
 
-    // KRISTINA FUN BONUS (+5 OR +10) WITH ANIMATION TRIGGER
+    // KRISTINA FUN BONUS (+5 OR +10)
     function awardFunBonus(teamId) {
       const bonus = Math.random() < 0.5 ? 5 : 10;
       db.ref(`teams/${teamId}/score`).transaction(s => (s || 0) + bonus);
@@ -872,7 +1040,7 @@
         db.ref("phase3Answers").remove();
         localStorage.removeItem("myTeamId");
         localStorage.removeItem("myTeamName");
-        alert("✅ Database Reset! All teams have been cleared.");
+        alert("✅ Database Reset! All teams cleared.");
       }
     }
 
@@ -897,8 +1065,8 @@
         pGrid.innerHTML = "";
         currentQ.options.forEach((opt, idx) => {
           pGrid.innerHTML += `
-            <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center gap-2">
-              <span class="bg-cyan-500/20 text-cyan-400 font-mono font-bold px-2.5 py-0.5 rounded-lg text-xs">${String.fromCharCode(65 + idx)}</span>
+            <div class="bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex items-center gap-3 shadow-sm">
+              <span class="bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 font-mono font-bold px-2.5 py-1 rounded-lg text-xs">${String.fromCharCode(65 + idx)}</span>
               <span class="text-slate-200 font-medium text-xs md:text-sm">${opt}</span>
             </div>
           `;
@@ -913,18 +1081,18 @@
         document.getElementById("player-lock-msg").classList.add("hidden");
 
         const btnStyles = [
-          "bg-rose-600 hover:bg-rose-500 border-rose-500", 
-          "bg-blue-600 hover:bg-blue-500 border-blue-500", 
-          "bg-amber-600 hover:bg-amber-500 border-amber-500", 
-          "bg-emerald-600 hover:bg-emerald-500 border-emerald-500"
+          "bg-rose-600 hover:bg-rose-500 border-rose-500/80 shadow-glow-rose", 
+          "bg-blue-600 hover:bg-blue-500 border-blue-500/80", 
+          "bg-amber-600 hover:bg-amber-500 border-amber-500/80 shadow-glow-amber", 
+          "bg-emerald-600 hover:bg-emerald-500 border-emerald-500/80 shadow-glow-emerald"
         ];
 
         const mGrid = document.getElementById("player-buttons-grid");
         mGrid.innerHTML = "";
         currentQ.options.forEach((opt, idx) => {
           mGrid.innerHTML += `
-            <button onclick="submitAnswer(${idx})" class="opt-btn ${btnStyles[idx]} border text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition text-left text-base flex items-center gap-3 active:scale-95">
-              <span class="bg-black/30 px-3 py-1 rounded-lg font-mono text-sm">${String.fromCharCode(65 + idx)}</span>
+            <button onclick="submitAnswer(${idx})" class="opt-btn ${btnStyles[idx]} border text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition text-left text-sm sm:text-base flex items-center gap-3 active:scale-95">
+              <span class="bg-black/30 px-3 py-1 rounded-lg font-mono text-xs">${String.fromCharCode(65 + idx)}</span>
               <span>${opt}</span>
             </button>
           `;
@@ -958,32 +1126,32 @@
         msgBox.classList.remove("hidden");
         
         if (res.rank === 1) {
-          msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-sm bg-emerald-950 border border-emerald-500 text-emerald-300";
-          msgBox.innerText = "🥇 1ST PLACE CORRECT GUESS! (+30 PTS)";
+          msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-xs sm:text-sm bg-emerald-950/90 border border-emerald-500 text-emerald-300 shadow-glow-emerald";
+          msgBox.innerText = "🥇 1ST PLACE SPEED CORRECT GUESS! (+30 PTS)";
         } else if (res.rank === 2) {
-          msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-sm bg-cyan-950 border border-cyan-500 text-cyan-300";
-          msgBox.innerText = "🥈 2ND PLACE CORRECT GUESS! (+20 PTS)";
+          msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-xs sm:text-sm bg-cyan-950/90 border border-cyan-500 text-cyan-300 shadow-glow-cyan";
+          msgBox.innerText = "🥈 2ND PLACE SPEED CORRECT GUESS! (+20 PTS)";
         } else if (res.rank === 3) {
-          msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-sm bg-amber-950 border border-amber-500 text-amber-300";
-          msgBox.innerText = "🥉 3RD PLACE CORRECT GUESS! (+10 PTS)";
+          msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-xs sm:text-sm bg-amber-950/90 border border-amber-500 text-amber-300 shadow-glow-amber";
+          msgBox.innerText = "🥉 3RD PLACE SPEED CORRECT GUESS! (+10 PTS)";
         } else {
-          msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-sm bg-slate-900 border border-slate-700 text-slate-200";
+          msgBox.className = "mt-4 p-3 rounded-xl text-center font-bold text-xs sm:text-sm bg-slate-900 border border-slate-700 text-slate-200";
           msgBox.innerText = "🎯 CORRECT GUESS! (+5 PTS)";
         }
       }
     });
 
-    // Listen for Completed Questions to Update Launch Button Badging
+    // Listen for Completed Questions to Update Launch Button Badges
     db.ref("completedQuestions").on("value", (snapshot) => {
       const completed = snapshot.val() || {};
       for (let i = 0; i < 5; i++) {
         const btn = document.getElementById(`qbtn-${i}`);
         if (btn) {
           if (completed[i]) {
-            btn.className = "bg-emerald-950/80 text-emerald-400 border border-emerald-700 font-bold py-1.5 px-1 rounded-xl text-xs cursor-default";
+            btn.className = "bg-emerald-950/80 text-emerald-400 border border-emerald-700 font-bold py-2 px-1 rounded-xl text-xs cursor-default shadow-glow-emerald";
             btn.innerText = `✅ Q${i + 1}`;
           } else {
-            btn.className = "bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-1.5 px-1 rounded-xl text-xs";
+            btn.className = "bg-slate-800 hover:bg-cyan-900/60 text-cyan-200 border border-slate-700 font-bold py-2 px-1 rounded-xl text-xs transition";
             btn.innerText = `Q${i + 1}`;
           }
         }
@@ -998,13 +1166,13 @@
 
       const keys = Object.keys(guessesObj);
       if (keys.length === 0) {
-        list.innerHTML = `<p class="text-xs text-slate-500 italic">Waiting for families to submit guesses on mobile...</p>`;
+        list.innerHTML = `<p class="text-xs text-slate-500 italic">Waiting for family squads to submit guesses on mobile terminals...</p>`;
       } else {
         keys.forEach((teamId, idx) => {
           const g = guessesObj[teamId];
           list.innerHTML += `
-            <span class="bg-slate-900 border border-slate-700 text-amber-300 text-xs font-mono font-bold px-2.5 py-1 rounded-full shadow-sm">
-              #${idx + 1} ${g.teamName || teamId} (Opt ${g.choice + 1})
+            <span class="bg-slate-900 border border-slate-700 text-amber-300 text-xs font-mono font-bold px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+              <span class="text-cyan-400">#${idx + 1}</span> ${g.teamName || teamId} (Opt ${g.choice + 1})
             </span>
           `;
         });
@@ -1027,7 +1195,7 @@
       const squadBadge = document.getElementById("squad-count-badge");
       const top10Count = document.getElementById("top10-squad-count");
 
-      if (squadBadge) squadBadge.innerText = `${teamsArray.length} Squads Joined`;
+      if (squadBadge) squadBadge.innerText = `${teamsArray.length} Squads Enlisted`;
       if (top10Count) top10Count.innerText = `${teamsArray.length} Squads Competing`;
 
       if (pillsContainer) {
@@ -1037,7 +1205,7 @@
         } else {
           teamsArray.forEach(team => {
             pillsContainer.innerHTML += `
-              <span class="bg-slate-900 border border-slate-700 text-cyan-300 text-[11px] font-mono font-bold px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 animate-fade-in">
+              <span class="bg-slate-900/90 border border-slate-700 text-cyan-300 text-xs font-mono font-bold px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 animate-pop-in">
                 <span>🛡️</span> ${team.name}
               </span>
             `;
@@ -1045,7 +1213,7 @@
         }
       }
 
-      // 3. Update Phase 2 Top 10 Leaderboard (Zoom)
+      // 3. Update Phase 2 Leaderboard
       const pList = document.getElementById("presenter-teams-list");
       pList.innerHTML = "";
 
@@ -1054,11 +1222,11 @@
         pList.innerHTML = `<p class="text-center text-slate-500 italic py-4 text-xs">No teams enlisted yet. Standby...</p>`;
       } else {
         top10Teams.forEach((team, index) => {
-          const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `\x23${index + 1}`;
+          const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`;
           pList.innerHTML += `
-            <div class="flex items-center justify-between bg-slate-950 border border-slate-800 p-2 rounded-xl shadow-sm">
-              <div class="flex items-center gap-2">
-                <span class="font-mono font-bold text-sm text-amber-400 w-6 text-center">${medal}</span>
+            <div class="flex items-center justify-between bg-slate-950/80 border border-slate-800 p-2.5 rounded-xl shadow-sm">
+              <div class="flex items-center gap-3">
+                <span class="font-mono font-extrabold text-sm text-amber-400 w-6 text-center">${medal}</span>
                 <span class="font-bold text-xs md:text-sm text-slate-100">${team.name}</span>
               </div>
               <span class="font-mono font-black text-emerald-400 text-sm">${team.score} PTS</span>
@@ -1067,45 +1235,45 @@
         });
       }
 
-      // 4. Update Phase 4 Victory Podium Display (3 Olympics-Style Columns)
+      // 4. Update Phase 4 Podium Display
       const podium = document.getElementById("podium-display");
       if (podium && teamsArray.length > 0) {
         podium.innerHTML = "";
         const top3 = teamsArray.slice(0, 3);
         
         const podiumOrder = [];
-        if (top3[1]) podiumOrder.push({ ...top3[1], rank: "🥈 2ND PLACE", style: "border-slate-300 bg-slate-900", height: "h-40" });
-        if (top3[0]) podiumOrder.push({ ...top3[0], rank: "🥇 CHAMPIONS", style: "border-amber-400 bg-amber-950/40 scale-105 z-10", height: "h-48" });
-        if (top3[2]) podiumOrder.push({ ...top3[2], rank: "🥉 3RD PLACE", style: "border-amber-700 bg-slate-900", height: "h-36" });
+        if (top3[1]) podiumOrder.push({ ...top3[1], rank: "🥈 2ND PLACE", style: "border-slate-300 bg-slate-900/90", height: "h-40" });
+        if (top3[0]) podiumOrder.push({ ...top3[0], rank: "🥇 CHAMPIONS", style: "border-amber-400 bg-amber-950/50 scale-105 z-10 shadow-glow-amber", height: "h-52" });
+        if (top3[2]) podiumOrder.push({ ...top3[2], rank: "🥉 3RD PLACE", style: "border-amber-700 bg-slate-900/90", height: "h-36" });
 
         podiumOrder.forEach(team => {
           podium.innerHTML += `
-            <div class="bg-slate-950 border-2 ${team.style} ${team.height} p-4 rounded-2xl flex flex-col justify-between items-center shadow-2xl transition">
-              <span class="text-xs font-mono font-black text-amber-400 block">${team.rank}</span>
-              <span class="text-lg md:text-xl font-black text-white leading-tight">${team.name}</span>
-              <span class="text-xl font-mono font-black text-emerald-400">${team.score} PTS</span>
+            <div class="glass-panel border-2 ${team.style} ${team.height} p-4 rounded-2xl flex flex-col justify-between items-center shadow-2xl transition">
+              <span class="text-[11px] font-mono font-black text-amber-400 block">${team.rank}</span>
+              <span class="text-base md:text-xl font-black text-white leading-tight">${team.name}</span>
+              <span class="text-lg md:text-2xl font-mono font-black text-emerald-400">${team.score} PTS</span>
             </div>
           `;
         });
       }
 
-      // 5. Update Scorekeeper Phase 3 Panel (Kristina)
+      // 5. Update Scorekeeper Panel
       const skList = document.getElementById("sk-teams-list");
       skList.innerHTML = "";
 
       if (teamsArray.length === 0) {
-        skList.innerHTML = `<p class="text-slate-500 italic text-xs py-2">Waiting for teams to join...</p>`;
+        skList.innerHTML = `<p class="text-slate-500 italic text-xs py-2 text-center">Waiting for teams to join...</p>`;
       } else {
         teamsArray.forEach(team => {
           skList.innerHTML += `
-            <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-2 shadow-md">
+            <div class="glass-panel p-3.5 rounded-2xl flex items-center justify-between gap-3 shadow-md border-slate-800">
               <div>
                 <span class="font-bold text-cyan-400 text-sm block">${team.name}</span>
                 <span class="font-mono text-emerald-400 text-xs font-black">${team.score} PTS</span>
               </div>
               <div class="flex gap-2">
-                <button onclick="awardFunBonus('${team.id}')" class="bg-purple-950 hover:bg-purple-900 text-purple-300 text-xs font-bold py-2 px-3 rounded-xl border border-purple-700/60">🎲 Fun Bonus (+5/+10)</button>
-                <button onclick="awardSpotlightBonus('${team.id}')" class="bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs font-bold py-2 px-3 rounded-xl border border-emerald-700/60">+50 (Spotlight Performance)</button>
+                <button onclick="awardFunBonus('${team.id}')" class="bg-purple-950 hover:bg-purple-900 text-purple-300 text-xs font-bold py-2 px-3 rounded-xl border border-purple-700/60 shadow-glow-purple transition">🎲 Fun Bonus (+5/+10)</button>
+                <button onclick="awardSpotlightBonus('${team.id}')" class="bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs font-bold py-2 px-3 rounded-xl border border-emerald-700/60 shadow-glow-emerald transition">+50 Spotlight</button>
               </div>
             </div>
           `;
