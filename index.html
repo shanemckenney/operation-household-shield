@@ -623,6 +623,18 @@
         <div id="player-p3-msg" class="mt-4 p-3 rounded-xl text-center font-bold text-xs sm:text-sm hidden"></div>
       </div>
 
+      <!-- Phase 4 Player Victory Card -->
+      <div id="player-p4-pad" class="hidden glass-panel border-2 border-amber-500/60 p-6 rounded-2xl text-center shadow-glow-amber animate-pop-in space-y-3">
+        <div class="text-5xl animate-bounce">🏆 🥇 🛡️</div>
+        <h3 class="text-xl font-black text-amber-300 uppercase tracking-widest">MISSION ACCOMPLISHED!</h3>
+        <p class="text-xs text-slate-300">Operation: Household Shield simulation is complete!</p>
+        <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 my-2">
+          <span class="text-[10px] text-slate-400 font-mono block uppercase">Your Squad Final Score</span>
+          <span id="player-final-score" class="font-mono font-black text-emerald-400 text-3xl">0 PTS</span>
+        </div>
+        <p class="text-xs font-extrabold text-cyan-400 animate-pulse">📺 Look at the main Zoom screen for Podium Celebrations & Blueprint Takeaways!</p>
+      </div>
+
       <!-- Waiting Idle Card -->
       <div id="player-idle-msg" class="glass-panel p-6 rounded-2xl text-center border-slate-800">
         <p class="text-slate-300 font-medium text-sm">📺 Keep eyes on the main Zoom presenter screen!</p>
@@ -651,6 +663,9 @@
     
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+
+    // Cache of teams data for mobile scores
+    let globalTeamsCache = {};
 
     // 8 Security+ High-Value "Aha!" Quiz Questions
     const questions = [
@@ -723,7 +738,7 @@
     document.getElementById('lobby-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(playerLandingUrl)}`;
 
     // -------------------------------------------------------------------
-    // GUIDED PHASE DECK STEPPER
+    // GUIDED PHASE DECK STEPPER (BROADCASTS PHASE TO FIREBASE)
     // -------------------------------------------------------------------
     let currentPhase = 0;
     const phaseTitles = [
@@ -744,6 +759,9 @@
       }
       const activeDeck = document.getElementById(`deck-phase-${currentPhase}`);
       if (activeDeck) activeDeck.classList.remove('hidden');
+
+      // Broadcast phase to Firebase so player screens sync live!
+      db.ref("gameState/currentPhase").set(phaseIndex);
     }
 
     function nextPhase() {
@@ -798,10 +816,10 @@
         if (switchBtn) switchBtn.classList.add('hidden'); // Lock mobile player in view
       } else if (role === 'presenter') {
         document.getElementById('role-presenter').classList.remove('hidden');
-        if (switchBtn) switchBtn.classList.remove('hidden');
+        if (switchBtn) switchBtn.style.display = "flex";
       } else if (role === 'scorekeeper') {
         document.getElementById('role-scorekeeper').classList.remove('hidden');
-        if (switchBtn) switchBtn.classList.remove('hidden');
+        if (switchBtn) switchBtn.style.display = "flex";
       }
     }
 
@@ -922,14 +940,18 @@
     function launchQuestion(index) {
       currentActiveQ = questions[index];
       const startTime = Date.now();
-      db.ref("gameState").set({ activeQuestion: currentActiveQ, startTime: startTime });
+      db.ref("gameState").set({ 
+        currentPhase: currentPhase,
+        activeQuestion: currentActiveQ, 
+        startTime: startTime 
+      });
       document.getElementById("p-status").innerText = `Live: Q${index + 1}`;
       document.getElementById("p-status").className = "text-xs font-mono bg-cyan-950 text-cyan-400 border border-cyan-700 px-3 py-1 rounded-full animate-pulse";
     }
 
     function closeQuiz() {
       currentActiveQ = null;
-      db.ref("gameState").set({ activeQuestion: null });
+      db.ref("gameState/activeQuestion").remove();
       document.getElementById("p-status").innerText = "Idle";
       document.getElementById("p-status").className = "text-xs font-mono bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700";
     }
@@ -1017,7 +1039,7 @@
             p3Results[guess.teamId] = { pts, rank: index + 1, correct: true };
           });
 
-          // Store result badges for mobile players & update reveal state on presenter Jumbotron
+          // Store result badges for mobile players
           db.ref("gameState/phase3Results").set(p3Results);
 
           // Reveal Correct Answer on Jumbotron
@@ -1040,9 +1062,9 @@
       });
     }
 
-    // KRISTINA FUN BONUS (+5 OR +10)
+    // KRISTINA FUN BONUS (+10 PTS FLAT)
     function awardFunBonus(teamId) {
-      const bonus = Math.random() < 0.5 ? 5 : 10;
+      const bonus = 10;
       db.ref(`teams/${teamId}/score`).transaction(s => (s || 0) + bonus);
       db.ref(`teams/${teamId}/lastBonus`).set({
         title: "🎲 GOOD VIBES BONUS!",
@@ -1052,7 +1074,7 @@
     }
 
     function clearAllTeams() {
-      if (confirm("⚠️ Are you sure you want to delete ALL enlisted squads and reset game data? This cannot be undone!")) {
+      if (confirm("⚠️️ Are you sure you want to delete ALL enlisted squads and reset game data? This cannot be undone!")) {
         db.ref("teams").remove();
         db.ref("answers").remove();
         db.ref("gameState").remove();
@@ -1065,18 +1087,83 @@
     }
 
     // -------------------------------------------------------------------
-    // REALTIME DATABASE LISTENERS
+    // REALTIME DATABASE LISTENERS & MOBILE PHASE SYNC
     // -------------------------------------------------------------------
     
     // Listen for Game State changes
     db.ref("gameState").on("value", (snapshot) => {
       const state = snapshot.val() || {};
+      const activePhase = state.currentPhase !== undefined ? state.currentPhase : 0;
       
-      // 1. Phase 2 Active Question Updates
+      // Hide all player mobile active pads by default
+      document.getElementById("player-quiz-pad").classList.add("hidden");
+      document.getElementById("player-p3-pad").classList.add("hidden");
+      document.getElementById("player-p4-pad").classList.add("hidden");
+      document.getElementById("player-idle-msg").classList.add("hidden");
+
+      // -----------------------------------------------------------------
+      // PLAYER MOBILE VIEW SYNCHRONIZATION BASED ON ACTIVE PHASE
+      // -----------------------------------------------------------------
+      if (activePhase === 4) {
+        // PHASE 4: VICTORY PODIUM
+        document.getElementById("player-p4-pad").classList.remove("hidden");
+        if (myTeamId && globalTeamsCache[myTeamId]) {
+          document.getElementById("player-final-score").innerText = `${globalTeamsCache[myTeamId].score} PTS`;
+        }
+      } 
+      else if (activePhase === 3) {
+        // PHASE 3: CHARADES
+        if (state.activePhase3) {
+          document.getElementById("player-p3-pad").classList.remove("hidden");
+          document.getElementById("player-p3-msg").classList.add("hidden");
+          document.querySelectorAll(".p3-opt-btn").forEach(b => {
+            b.disabled = false;
+            b.classList.remove("opacity-50", "cursor-not-allowed");
+          });
+        } else {
+          document.getElementById("player-idle-msg").classList.remove("hidden");
+        }
+      } 
+      else if (activePhase === 2) {
+        // PHASE 2: TRIVIA
+        if (state.activeQuestion) {
+          currentQ = state.activeQuestion;
+          document.getElementById("player-quiz-pad").classList.remove("hidden");
+          document.getElementById("player-q-num").innerText = `Question ${currentQ.id + 1}`;
+          document.getElementById("player-q-text").innerText = currentQ.text;
+          document.getElementById("player-lock-msg").classList.add("hidden");
+
+          const btnStyles = [
+            "bg-rose-600 hover:bg-rose-500 border-rose-500/80 shadow-glow-rose", 
+            "bg-blue-600 hover:bg-blue-500 border-blue-500/80", 
+            "bg-amber-600 hover:bg-amber-500 border-amber-500/80 shadow-glow-amber", 
+            "bg-emerald-600 hover:bg-emerald-500 border-emerald-500/80 shadow-glow-emerald"
+          ];
+
+          const mGrid = document.getElementById("player-buttons-grid");
+          mGrid.innerHTML = "";
+          currentQ.options.forEach((opt, idx) => {
+            mGrid.innerHTML += `
+              <button onclick="submitAnswer(${idx})" class="opt-btn ${btnStyles[idx]} border text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition text-left text-sm sm:text-base flex items-center gap-3 active:scale-95">
+                <span class="bg-black/30 px-3 py-1 rounded-lg font-mono text-xs">${String.fromCharCode(65 + idx)}</span>
+                <span>${opt}</span>
+              </button>
+            `;
+          });
+        } else {
+          document.getElementById("player-idle-msg").classList.remove("hidden");
+        }
+      } 
+      else {
+        // PHASE 0 & 1 IDLE
+        document.getElementById("player-idle-msg").classList.remove("hidden");
+      }
+
+      // -----------------------------------------------------------------
+      // PRESENTER DECK SYNCHRONIZATION
+      // -----------------------------------------------------------------
       if (state.activeQuestion) {
         currentQ = state.activeQuestion;
-        
-        // Presenter Stage
         document.getElementById("presenter-quiz-stage").classList.remove("hidden");
         document.getElementById("presenter-q-num").innerText = `Question ${currentQ.id + 1}`;
         document.getElementById("presenter-q-text").innerText = currentQ.text;
@@ -1091,67 +1178,23 @@
             </div>
           `;
         });
-
-        // Mobile Player Touch Pad
-        document.getElementById("player-quiz-pad").classList.remove("hidden");
-        document.getElementById("player-p3-pad").classList.add("hidden");
-        document.getElementById("player-idle-msg").classList.add("hidden");
-        document.getElementById("player-q-num").innerText = `Question ${currentQ.id + 1}`;
-        document.getElementById("player-q-text").innerText = currentQ.text;
-        document.getElementById("player-lock-msg").classList.add("hidden");
-
-        const btnStyles = [
-          "bg-rose-600 hover:bg-rose-500 border-rose-500/80 shadow-glow-rose", 
-          "bg-blue-600 hover:bg-blue-500 border-blue-500/80", 
-          "bg-amber-600 hover:bg-amber-500 border-amber-500/80 shadow-glow-amber", 
-          "bg-emerald-600 hover:bg-emerald-500 border-emerald-500/80 shadow-glow-emerald"
-        ];
-
-        const mGrid = document.getElementById("player-buttons-grid");
-        mGrid.innerHTML = "";
-        currentQ.options.forEach((opt, idx) => {
-          mGrid.innerHTML += `
-            <button onclick="submitAnswer(${idx})" class="opt-btn ${btnStyles[idx]} border text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition text-left text-sm sm:text-base flex items-center gap-3 active:scale-95">
-              <span class="bg-black/30 px-3 py-1 rounded-lg font-mono text-xs">${String.fromCharCode(65 + idx)}</span>
-              <span>${opt}</span>
-            </button>
-          `;
-        });
-
       } else {
         document.getElementById("presenter-quiz-stage").classList.add("hidden");
-        document.getElementById("player-quiz-pad").classList.add("hidden");
-        document.getElementById("player-idle-msg").classList.remove("hidden");
       }
 
-      // 2. Phase 3 Active Guessing & Jumbotron Updates
       if (state.activePhase3) {
         const p3Data = state.activePhase3;
-
-        // Presenter Zoom Screen Jumbotron
         document.getElementById("p3-idle-state").classList.add("hidden");
         document.getElementById("p3-revealed-state").classList.add("hidden");
         document.getElementById("p3-active-state").classList.remove("hidden");
         document.getElementById("p3-spotlight-team").innerText = `${p3Data.teamName.toUpperCase()} IS UP!`;
         document.getElementById("p3-speed-feed-container").classList.remove("hidden");
-
-        // Mobile Player Keypad
-        document.getElementById("player-p3-pad").classList.remove("hidden");
-        document.getElementById("player-quiz-pad").classList.add("hidden");
-        document.getElementById("player-idle-msg").classList.add("hidden");
-        document.getElementById("player-p3-msg").classList.add("hidden");
-
-        document.querySelectorAll(".p3-opt-btn").forEach(b => {
-          b.disabled = false;
-          b.classList.remove("opacity-50", "cursor-not-allowed");
-        });
       } else {
         document.getElementById("p3-idle-state").classList.remove("hidden");
         document.getElementById("p3-active-state").classList.add("hidden");
-        document.getElementById("player-p3-pad").classList.add("hidden");
       }
 
-      // 3. Phase 3 Mobile Result Badges
+      // Phase 3 Mobile Result Badges
       if (state.phase3Results && myTeamId && state.phase3Results[myTeamId]) {
         const res = state.phase3Results[myTeamId];
         const msgBox = document.getElementById("player-p3-msg");
@@ -1214,12 +1257,16 @@
     // Listen for Team & Leaderboard updates
     db.ref("teams").on("value", (snapshot) => {
       const teamsObj = snapshot.val() || {};
+      globalTeamsCache = teamsObj;
+      
       const teamsArray = Object.keys(teamsObj).map(key => ({ id: key, ...teamsObj[key] }));
       teamsArray.sort((a, b) => b.score - a.score);
 
-      // 1. Update Player Mobile Score Badge
+      // 1. Update Player Mobile Score Badges
       if (myTeamId && teamsObj[myTeamId]) {
         document.getElementById("player-squad-score").innerText = `${teamsObj[myTeamId].score} PTS`;
+        const p4Score = document.getElementById("player-final-score");
+        if (p4Score) p4Score.innerText = `${teamsObj[myTeamId].score} PTS`;
       }
 
       // 2. Populate Kristina's Phase 3 Team Dropdown
@@ -1315,7 +1362,7 @@
                 <span class="font-mono text-emerald-400 text-xs font-black">${team.score} PTS</span>
               </div>
               <div class="flex gap-2">
-                <button onclick="awardFunBonus('${team.id}')" class="bg-purple-950 hover:bg-purple-900 text-purple-300 text-xs font-bold py-2 px-3 rounded-xl border border-purple-700/60 shadow-glow-purple transition">🎲 Fun Bonus (+5/+10)</button>
+                <button onclick="awardFunBonus('${team.id}')" class="bg-purple-950 hover:bg-purple-900 text-purple-300 text-xs font-bold py-2 px-3 rounded-xl border border-purple-700/60 shadow-glow-purple transition">🎲 Fun Bonus (+10)</button>
                 <button onclick="awardSpotlightBonus('${team.id}')" class="bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs font-bold py-2 px-3 rounded-xl border border-emerald-700/60 shadow-glow-emerald transition">+50 Spotlight</button>
               </div>
             </div>
